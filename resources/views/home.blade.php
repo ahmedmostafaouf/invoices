@@ -5,12 +5,16 @@
     <!-- Maps css -->
     <link href="{{URL::asset('assets/plugins/jqvmap/jqvmap.min.css')}}" rel="stylesheet">
 @endsection
+@section('title')
+    لوحة التحكم
+    @stop
+
 @section('page-header')
     <!-- breadcrumb -->
     <div class="breadcrumb-header justify-content-between">
         <div class="left-content">
             <div>
-                <h2 class="main-content-title tx-24 mg-b-1 mg-b-lg-1"> مرحبا بك في موقع سوسو</h2>
+                <h2 class="main-content-title tx-24 mg-b-1 mg-b-lg-1"> مرحبا بك في موقعنا </h2>
             </div>
         </div>
 
