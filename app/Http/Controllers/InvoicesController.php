@@ -206,7 +206,23 @@ class InvoicesController extends Controller
            $invoices->delete();
            return redirect()->route('archive.index')->with(['delete_invoice'=>"تم الارشفة بنحاخ "]);
        }
+    }
+    public function deleteAllChecked(Request $request){
 
+        $delete_all=explode(',',$request->delete_all_id);
+
+        $Details=Invoices_attachments::WhereIn('invoice_id',$delete_all)->first();
+        if(!$request->page_id==2) {
+            if (!empty($Details)) {
+                Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
+            }
+            $invoices=Invoices::WhereIn('id',$delete_all)->forceDelete();
+            return redirect()->route('invoices.index')->with(['delete_invoice'=>" تم الحذف بنجاح "]);
+
+        }else{
+            $invoices=Invoices::WhereIn('id',$delete_all)->Delete();
+            return redirect()->route('archive.index')->with(['delete_invoice'=>" تم الحذف بنجاح ونقلة للاشرفة  "]);
+        }
 
 
 

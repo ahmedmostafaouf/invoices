@@ -60,14 +60,18 @@
 
                         <a href="invoices/create" class="modal-effect btn btn-sm btn-primary" style="color:white"><i
                                 class="fas fa-plus"></i>&nbsp; اضافة فاتورة</a>
+                        <button type="button" class="btn btn-sm btn-danger" id="btn_delete_all">
+                            حذف الكل
+                        </button>
                     </div>
 
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="example1" class="table key-buttons text-md-nowrap" data-page-length='50'style="text-align: center">
+                        <table id="example" class="table key-buttons text-md-nowrap" data-page-length='50'style="text-align: center">
                             <thead>
                             <tr>
+                                <th class="border-bottom-0"><input value="0" type="checkbox" class="select_all" id="select_all" onclick="CheckAll('box1',this)"></th>
                                 <th class="border-bottom-0">#</th>
                                 <th class="border-bottom-0">رقم الفاتورة</th>
                                 <th class="border-bottom-0">تاريخ القاتورة</th>
@@ -86,6 +90,7 @@
                             <tbody>
                             @foreach($invoices as $index =>$invoice)
                             <tr>
+                                <td><input class="box1" type="checkbox" value="{{$invoice->id}}"></td>
                                 <td>{{$index+1}}</td>
                                 <td>{{$invoice -> invoices_num}}</td>
                                 <td>{{$invoice->invoices_date}}</td>
@@ -97,7 +102,7 @@
                                 <td>{{$invoice->value_vat}}</td>
                                 <td>{{$invoice->total}}</td>
                                 <td> @if($invoice->status == 1 ) <span class="text-success">{{$invoice->getStatus()}}</span> @elseif($invoice->status==2) <span class="text-warning">{{$invoice->getStatus()}}</span>@else <span class="text-danger">{{$invoice->getStatus()}}</span> @endif</td>
-                                <td>{{$invoice->note}}</td>
+                                <td> @if(!empty($invoice->note)){{$invoice->note}} @else <span style="color: red"> لايوجد ملاحظات </span>  @endif </td>
                                 <td>
                                     <div class="dropdown">
                                         <button aria-expanded="false" aria-haspopup="true"
@@ -127,6 +132,40 @@
                 </div>
             </div>
         </div>
+
+        <!-- حذف مجموعة صفوف -->
+        <div class="modal fade" id="delete_all" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 style="font-family: 'Cairo', sans-serif;" class="modal-title" id="exampleModalLabel">
+                            {{ trans('My_Classes_trans.delete_class') }}
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <form action="{{route('delete.all')}}" method="POST">
+                        @csrf
+                        <div class="modal-body">
+                            هل انت متاكد من عمليه الحذف ؟
+                            <input class="text" type="hidden" id="delete_all_id" name="delete_all_id" value=''>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    data-dismiss="modal">اغلاق</button>
+                            <button type="submit" class="btn btn-danger">حذف الكل</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
         <!-- archive -->
         <div class="modal" id="Transfer_invoice">
             <div class="modal-dialog" role="document">
@@ -231,6 +270,20 @@
             var modal = $(this)
             modal.find('.modal-body #invoice_id').val(id);
         })
+    </script>
+    <script type="text/javascript">
+        $(function() {
+            $("#btn_delete_all").click(function() {
+                var selected = new Array();
+                $("#example1 input[type=checkbox]:checked").each(function() {
+                    selected.push(this.value); // هات القيمه وحطهم في ارايي
+                });
+                if (selected.length > 0) {
+                    $('#delete_all').modal('show')
+                    $('input[id="delete_all_id"]').val(selected); // ضع الي في السيلكت دي ف الانبوت الي الاي دي بتاع ؟
+                }
+            });
+        });
     </script>
 
 @endsection

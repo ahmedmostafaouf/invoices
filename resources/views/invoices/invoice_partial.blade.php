@@ -47,7 +47,7 @@
             <div class="card mg-b-20">
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="example1" class="table key-buttons text-md-nowrap" data-page-length='50'style="text-align: center">
+                        <table id="example" class="table key-buttons text-md-nowrap" data-page-length='50'style="text-align: center">
                             <thead>
                             <tr>
                                 <th class="border-bottom-0">#</th>
@@ -79,7 +79,7 @@
                                 <td>{{$invoice->value_vat}}</td>
                                 <td>{{$invoice->total}}</td>
                                 <td> @if($invoice->status == 1 ) <span class="text-success">{{$invoice->getStatus()}}</span> @elseif($invoice->status==2) <span class="text-warning">{{$invoice->getStatus()}}</span>@else <span class="text-danger">{{$invoice->getStatus()}}</span> @endif</td>
-                                <td>{{$invoice->note}}</td>
+                                <td> @if(!empty($invoice->note)){{$invoice->note}} @else <span style="color: red"> لايوجد ملاحظات </span>  @endif </td>
                                 <td>
                                     <div class="dropdown">
                                         <button aria-expanded="false" aria-haspopup="true"

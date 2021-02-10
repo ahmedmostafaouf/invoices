@@ -24,6 +24,8 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 Route::group(['middleware'=>'auth:web'],function () {
     Route::resource('invoices','InvoicesController');
+    Route::post('delete_all','InvoicesController@deleteAllChecked')->name('delete.all');
+
     Route::get('invoice_paid','InvoicesController@getInvoicePaid')->name('invoice.paid');
     Route::get('invoice_unPaid','InvoicesController@getInvoiceUnPaid')->name('invoice.unPaid');
     Route::get('invoice_partial','InvoicesController@getInvoicePartial')->name('invoice.partial');

@@ -113,7 +113,7 @@
                                                                     <th scope="row">المستخدم</th>
                                                                     <td>{{ $invoices->user }}</td>
                                                                     <th scope="row">ملاحظات</th>
-                                                                    <td>{{ $invoices->note }}</td>
+                                                                    <td> @if(!empty($invoices->note)){{$invoices->note}} @else <span style="color: red"> لايوجد ملاحظات </span>  @endif </td>
                                                                 </tr>
                                                                 </tbody>
                                                             </table>
@@ -160,7 +160,7 @@
                                                                             </td>
                                                                         @endif
                                                                         <td>{{ $details->Payment_Date }}</td>
-                                                                        <td>{{ $details->note }}</td>
+                                                                        <td> @if(!empty($details->note)){{$details->note}} @else <span style="color: red"> لايوجد ملاحظات </span>  @endif </td>
                                                                         <td>{{ $details->created_at }}</td>
                                                                         <td>{{ $details->user }}</td>
                                                                     </tr>
