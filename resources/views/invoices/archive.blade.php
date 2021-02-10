@@ -32,26 +32,6 @@
 @section('content')
     @include('includes.alerts.errors')
     @include('includes.alerts.success')
-    @if (session()->has('delete_invoice'))
-        <script>
-            window.onload = function() {
-                notif({
-                    msg: "{{session()->get('delete_invoice')}}",
-                    type: "success"
-                })
-            }
-        </script>
-    @endif
-    @if (session()->has('edit_status'))
-        <script>
-            window.onload = function() {
-                notif({
-                    msg: "{{session()->get('edit_status')}}",
-                    type: "success"
-                })
-            }
-        </script>
-    @endif
     <div class="row">
         <div class="col-xl-12">
             <div class="card mg-b-20">
@@ -275,7 +255,7 @@
         $(function() {
             $("#btn_delete_all").click(function() {
                 var selected = new Array();
-                $("#example1 input[type=checkbox]:checked").each(function() {
+                $("#example input[type=checkbox]:checked").each(function() {
                     selected.push(this.value); // هات القيمه وحطهم في ارايي
                 });
                 if (selected.length > 0) {

@@ -22,39 +22,8 @@
 @endsection
 @section('content')
 
-
-    @if (session()->has('Add'))
-        <script>
-            window.onload = function() {
-                notif({
-                    msg: " تم اضافة الصلاحية بنجاح",
-                    type: "success"
-                });
-            }
-        </script>
-    @endif
-
-    @if (session()->has('edit'))
-        <script>
-            window.onload = function() {
-                notif({
-                    msg: " تم تحديث بيانات الصلاحية بنجاح",
-                    type: "success"
-                });
-            }
-        </script>
-    @endif
-
-    @if (session()->has('delete'))
-        <script>
-            window.onload = function() {
-                notif({
-                    msg: " تم حذف الصلاحية بنجاح",
-                    type: "error"
-                });
-            }
-        </script>
-    @endif
+    @include('includes.alerts.errors')
+    @include('includes.alerts.success')
 
     <!-- row -->
     <div class="row row-sm">

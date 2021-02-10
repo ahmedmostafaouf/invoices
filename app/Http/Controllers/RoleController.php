@@ -46,13 +46,13 @@ class RoleController extends Controller
         }
         $role->update(['name'=>$request->name]);
         $role->syncPermissions($request->permission);
-        return  redirect()->route('roles.index')->with(['edit'=>"تم التعديل بنجاج"]);
+        return  redirect()->route('roles.index')->with(['success'=>"تم التعديل بنجاج"]);
     }
 
     public function destroy($id){
         $role=Role::findOrFail($id);
         $role->delete();
-        return redirect()->route('roles.index')->with(['delete'=>'تم الحذف بنجاح']);
+        return redirect()->route('roles.index')->with(['success'=>'تم الحذف بنجاح']);
 
     }
 }

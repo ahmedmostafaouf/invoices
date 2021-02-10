@@ -32,26 +32,7 @@
 @section('content')
     @include('includes.alerts.errors')
     @include('includes.alerts.success')
-    @if (session()->has('delete_invoice'))
-        <script>
-            window.onload = function() {
-                notif({
-                    msg: "{{session()->get('delete_invoice')}}",
-                    type: "success"
-                })
-            }
-        </script>
-    @endif
-    @if (session()->has('edit_status'))
-        <script>
-            window.onload = function() {
-                notif({
-                    msg: "{{session()->get('edit_status')}}",
-                    type: "success"
-                })
-            }
-        </script>
-    @endif
+
     <div class="row">
         <div class="col-xl-12">
             <div class="card mg-b-20">
@@ -220,7 +201,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 style="font-family: 'Cairo', sans-serif;" class="modal-title" id="exampleModalLabel">
-                            {{ trans('My_Classes_trans.delete_class') }}
+                            الحذف والنقل الي الارشفة
                         </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -230,7 +211,7 @@
                     <form action="{{route('delete.all')}}" method="POST">
                        @csrf
                         <div class="modal-body">
-                            هل انت متاكد من عمليه الحذف ؟
+                            هل انت متاكد من عمليه الحذف ونقل الي الارشفة ؟
                             <input class="text" type="hidden" id="page_id" name="page_id" value='2'>
 
                             <input class="text" type="hidden" id="delete_all_id" name="delete_all_id" value=''>
@@ -329,7 +310,7 @@
         $(function() {
             $("#btn_delete_all").click(function() {
                 var selected = new Array();
-                $("#example1 input[type=checkbox]:checked").each(function() {
+                $("#example input[type=checkbox]:checked").each(function() {
                     selected.push(this.value); // هات القيمه وحطهم في ارايي
                 });
                 if (selected.length > 0) {

@@ -144,7 +144,7 @@ class InvoicesController extends Controller
                 "user"=>auth()->user()->name,
             ]);
         }
-       return redirect()->route('invoices.index')->with(['edit_status'=>" تم تغير الحالة بنجاح "]);
+       return redirect()->route('invoices.index')->with(['success'=>" تم تغير الحالة بنجاح "]);
 
 
    }
@@ -193,7 +193,7 @@ class InvoicesController extends Controller
        $id= $request->invoice_id;
        $invoices=Invoices::findOrFail($id);
        if(!$invoices){
-           return redirect()->route('invoices.index')->with(['delete_invoice'=>"حصل خطأ ما "]);
+           return redirect()->route('invoices.index')->with(['error'=>"حصل خطأ ما "]);
        }
         $Details=Invoices_attachments::where('invoice_id',$id)->first();
        if(!$request->page_id==2){
@@ -201,10 +201,10 @@ class InvoicesController extends Controller
                Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
            }
            $invoices->forceDelete();
-           return redirect()->route('invoices.index')->with(['delete_invoice'=>" تم الحذف بنجاح "]);
+           return redirect()->route('invoices.index')->with(['success'=>" تم الحذف بنجاح "]);
        }else{
            $invoices->delete();
-           return redirect()->route('archive.index')->with(['delete_invoice'=>"تم الارشفة بنحاخ "]);
+           return redirect()->route('archive.index')->with(['success'=>"تم الارشفة بنحاخ "]);
        }
     }
     public function deleteAllChecked(Request $request){
@@ -217,11 +217,11 @@ class InvoicesController extends Controller
                 Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
             }
             $invoices=Invoices::WhereIn('id',$delete_all)->forceDelete();
-            return redirect()->route('invoices.index')->with(['delete_invoice'=>" تم الحذف بنجاح "]);
+            return redirect()->route('invoices.index')->with(['success'=>" تم الحذف بنجاح "]);
 
         }else{
             $invoices=Invoices::WhereIn('id',$delete_all)->Delete();
-            return redirect()->route('archive.index')->with(['delete_invoice'=>" تم الحذف بنجاح ونقلة للاشرفة  "]);
+            return redirect()->route('archive.index')->with(['success'=>" تم الحذف بنجاح ونقلة للاشرفة  "]);
         }
 
 

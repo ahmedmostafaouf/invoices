@@ -120,6 +120,7 @@
 
                                                         </div>
                                                     </div>
+
                                                     <div class="tab-pane" id="tab12">
                                                         <div class="table-responsive mt-15">
                                                             <table class="table center-aligned-table mb-0 table-hover"
@@ -171,6 +172,8 @@
 
                                                         </div>
                                                     </div>
+
+
                                                     <div class="tab-pane" id="tab13">
                                                         <!--المرفقات-->
                                                         <div class="card card-statistics">
@@ -248,8 +251,8 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
+                                                </div>
+                                           </div>
                                     </div>
 
 
@@ -257,42 +260,11 @@
                             </div>
                         </div>
                     </div>
-                    <!-- delete -->
-                    <div class="modal" id="delete_file">
-                        <div class="modal-dialog" role="document">
-                            <div class="modal-content modal-content-demo">
-                                <div class="modal-header">
-                                    <h6 class="modal-title">اضافة قسم</h6>
-                                </div>
 
-                                <div class="modal-body">
-                                    <form action="{{route('delete_file')}}" method="post">
-                                        @csrf
-                                        <div class="form-group">
-                                            <p>هل انت متاكد من عملية الحذف ؟</p><br>
-                                            <input type="hidden" name="file_id" id="file_id" value="">
-                                            <input type="hidden" class="form-control"  name="file_name" id="file_name" value="">
-                                            <input type="hidden" name="invoice_number" id="invoice_number" value="">
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="submit" class="btn btn-success">تاكيد</button>
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">اغلاق</button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <!-- modal body closed-->
-                            </div>
-                            <!-- modat-content closed-->
-                        </div>
-                        <!-- document closed-->
-                    </div>
-                    <!-- delete closed -->
 				</div>
+
 				<!-- row closed -->
-			</div>
-			<!-- Container closed -->
 		</div>
-		<!-- main-content closed -->
 @endsection
 @section('js')
     <!--Internal  Datepicker js -->

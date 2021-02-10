@@ -47,7 +47,7 @@ class InvoiceArchiveController extends Controller
         $id = $request->invoice_id;
         // الغاء الارشقة وتحويله للعادي
         $invoices=Invoices::withTrashed()->where('id',$id)->restore();
-        return redirect()->route('invoices.index')->with(['delete_invoice'=>" تم الغاء الارشفة بنجاح "]);
+        return redirect()->route('invoices.index')->with(['success'=>" تم الغاء الارشفة بنجاح "]);
     }
 
 
@@ -60,7 +60,7 @@ class InvoiceArchiveController extends Controller
                 Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
             }
         $invoices->forceDelete();
-        return redirect()->route('archive.index')->with(['delete_invoice'=>" تم حذف الارشفة بنجاح "]);
+        return redirect()->route('archive.index')->with(['success'=>" تم حذف الارشفة بنجاح "]);
 
 
     }

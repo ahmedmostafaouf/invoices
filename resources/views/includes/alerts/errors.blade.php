@@ -1,8 +1,12 @@
 
-@if(Session::has('error'))
-    <div class="row mr-2 ml-2" >
-        <button type="text" class="btn btn-lg btn-block btn-outline-danger mb-2"
-                id="type-error">{{Session::get('error')}}
-        </button>
-    </div>
+@if (session()->has('error'))
+    <script>
+        window.onload = function() {
+            notif({
+                msg: "{{session()->get('error')}}",
+                type: "danger"
+            })
+        }
+    </script>
 @endif
+
