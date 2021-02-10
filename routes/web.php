@@ -22,41 +22,65 @@ Route::get('/', function (){
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
-Route::group(['middleware'=>'auth:web'],function () {
-    Route::resource('invoices','InvoicesController');
-    Route::post('delete_all','InvoicesController@deleteAllChecked')->name('delete.all');
+/////////////////////////////// start Invoices Route//////////////////////////////////////////////////////////
+Route::group(['middleware'=>'auth:web','prefix'=>'Invoices'],function () {
+            Route::resource('invoices','InvoicesController');
+            Route::post('delete_all','InvoicesController@deleteAllChecked')->name('delete.all');
+            Route::get('invoice_paid','InvoicesController@getInvoicePaid')->name('invoice.paid');
+            Route::get('invoice_unPaid','InvoicesController@getInvoiceUnPaid')->name('invoice.unPaid');
+            Route::get('invoice_partial','InvoicesController@getInvoicePartial')->name('invoice.partial');
+            Route::get('status/{id}','InvoicesController@statusShow')->name('invoicesStatus.show');
+            Route::post('statusUpdate/{id}','InvoicesController@statusUpdate')->name('invoices.statusUpdate');
+            Route::get('invoice_print/{id}','InvoicesController@invoice_print')->name('invoice.print');
+            Route::get('invoices_export/', 'InvoicesController@export');
+            Route::get('category/{id}','InvoicesController@getProduct');
+            Route::get('markAsRead','InvoicesController@markAsRead_all')->name('mark');
+    /////////////////////////////// end Invoices Route//////////////////////////////////////////////////////////
 
-    Route::get('invoice_paid','InvoicesController@getInvoicePaid')->name('invoice.paid');
-    Route::get('invoice_unPaid','InvoicesController@getInvoiceUnPaid')->name('invoice.unPaid');
-    Route::get('invoice_partial','InvoicesController@getInvoicePartial')->name('invoice.partial');
-    Route::get('status/{id}','InvoicesController@statusShow')->name('invoicesStatus.show');
-    Route::post('statusUpdate/{id}','InvoicesController@statusUpdate')->name('invoices.statusUpdate');
-    Route::get('invoice_print/{id}','InvoicesController@invoice_print')->name('invoice.print');
-    Route::get('invoices_export/', 'InvoicesController@export');
+/////////////////////////////// start category Route//////////////////////////////////////////////////////////
+            Route::resource('category','CategoryController')->except(['create','show','edit']);
+    /////////////////////////////// end Category Route//////////////////////////////////////////////////////////
+/////////////////////////////// start produoct Route//////////////////////////////////////////////////////////
+            Route::resource('product','ProductController')->except(['create','show','edit']);
+    /////////////////////////////// end produoct Route//////////////////////////////////////////////////////////
 
-    Route::resource('category','CategoryController')->except(['create','show','edit']);
-    Route::resource('product','ProductController')->except(['create','show','edit']);
-    Route::resource('archive','InvoiceArchiveController');
-    Route::get('category/{id}','InvoicesController@getProduct');
-    Route::get('invoices_details/{id}','InvoicesDetailsController@show')->name('invoices.details');
-    Route::post('delete_file','InvoicesDetailsController@destroy')->name('delete_file');
-    Route::get('View_file/{invoice_num}/{file_name}','InvoicesDetailsController@openFile');
-    Route::get('download_file/{invoice_num}/{file_name}','InvoicesDetailsController@getFile');
-    Route::post('invoice_attachments','InvoicesAttachmentsController@store')->name('invoices.attachments');
-    Route::resource('roles','RoleController');
-    Route::resource('users','UserController');
-    Route::get('invoices_reports','InvoicesReportController@getReport')->name('get.report');
-    Route::post('search_reports','InvoicesReportController@searchReport')->name('search.report');
+    /////////////////////////////// start archive Route//////////////////////////////////////////////////////////
+            Route::resource('archive','InvoiceArchiveController');
+    /////////////////////////////// start archive Route//////////////////////////////////////////////////////////
 
-    Route::get('customer_reports','CustomerReportController@getCustomerReport')->name('get.customer.report');
-    Route::post('search_Customer','CustomerReportController@searchCustomerReport')->name('search.customer.report');
+    /////////////////////////////// start invoices_details Route//////////////////////////////////////////////////////////
+            Route::get('invoices_details/{id}','InvoicesDetailsController@show')->name('invoices.details');
+            Route::post('delete_file','InvoicesDetailsController@destroy')->name('delete_file');
+            Route::get('View_file/{invoice_num}/{file_name}','InvoicesDetailsController@openFile');
+            Route::get('download_file/{invoice_num}/{file_name}','InvoicesDetailsController@getFile');
+    /////////////////////////////// end invoices_details Route//////////////////////////////////////////////////////////
 
-    Route::get('markAsRead','InvoicesController@markAsRead_all')->name('mark');
+    /////////////////////////////// start invoice_attachments Route//////////////////////////////////////////////////////////
+            Route::post('invoice_attachments','InvoicesAttachmentsController@store')->name('invoices.attachments');
+    /////////////////////////////// end invoice_attachments Route//////////////////////////////////////////////////////////
+
+    /////////////////////////////// start roles Route//////////////////////////////////////////////////////////
+            Route::resource('roles','RoleController');
+    /////////////////////////////// end roles Route//////////////////////////////////////////////////////////
+
+    /////////////////////////////// start users Route//////////////////////////////////////////////////////////
+            Route::resource('users','UserController');
+    /////////////////////////////// end users Route//////////////////////////////////////////////////////////
+
+    /////////////////////////////// start invoices_reports Route//////////////////////////////////////////////////////////
+            Route::get('invoices_reports','InvoicesReportController@getReport')->name('get.report');
+            Route::post('search_reports','InvoicesReportController@searchReport')->name('search.report');
+    /////////////////////////////// end invoices_reports Route//////////////////////////////////////////////////////////
+
+    /////////////////////////////// start customer_reports Route//////////////////////////////////////////////////////////
+            Route::get('customer_reports','CustomerReportController@getCustomerReport')->name('get.customer.report');
+            Route::post('search_Customer','CustomerReportController@searchCustomerReport')->name('search.customer.report');
+    /////////////////////////////// end customer_reports Route//////////////////////////////////////////////////////////
+
 
 
 });
 
-Route::get('/{page}', 'AdminController@index');
 
 
 

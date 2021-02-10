@@ -22,6 +22,17 @@
     <!-- /breadcrumb -->
 @endsection
 @section('content')
+    @if (session()->has('error'))
+        <script>
+            window.onload = function() {
+                notif({
+                    msg: "{{session()->get('error')}}",
+                    type: "error"
+                })
+            }
+        </script>
+    @endif
+    @include('includes.alerts.success')
     <!-- row -->
     <div class="row row-sm">
         <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">

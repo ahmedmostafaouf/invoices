@@ -20,38 +20,58 @@ class UserController extends Controller
         return view('users.create_user',compact('roles'));
     }
     public function store(UserRequest $request){
-       $request_data=$request->except(['password']);
-       $request_data['password']=bcrypt($request->password);
-       $user=User::create($request_data);
-       $user->assignRole($request->input('roles_name'));
-       return redirect()->route('users.index')->with(['success'=>'تم الاضافة بنجاح']);
+        try {
+            $request_data=$request->except(['password']);
+            $request_data['password']=bcrypt($request->password);
+            Db::beginTransaction();
+            $user=User::create($request_data);
+            $user->assignRole($request->input('roles_name'));
+            DB::commit();
+            return redirect()->route('users.index')->with(['success'=>'تم الاضافة بنجاح']);
+        }catch (\Exception $ex){
+             DB::rollBack();
+            return redirect()->route('users.index')->with(['error'=>'حدث خطأما']);
+        }
+
     }
     public function edit($id){
-       $users=User::findOrFail($id);
-        $roles=Role::pluck('name','name')->all();
-        $userRole = $users->roles->pluck('name','name')->all();
-        return view('users.edit_user',compact('users','roles','userRole'));
+        try {
+            $users=User::findOrFail($id);
+            $roles=Role::pluck('name','name')->all();
+            $userRole = $users->roles->pluck('name','name')->all();
+            return view('users.edit_user',compact('users','roles','userRole'));
+        }catch (\Exception $ex){
+            return redirect()->route('users.index')->with(['error'=>'حدث خطأما']);
+        }
+
     }
     public function update(UserRequest $request,$id){
-        $users=User::findOrFail($id);
+        try {
+            $users=User::findOrFail($id);
+            $request_date = $request->except(['password']);
+            if($request->has('password')){
+                $request_date['password'] = bcrypt($request->password);
+            }
+            DB::table('model_has_roles')->where('model_id',$id)->delete();
+            $users->assignRole($request->input('roles_name'));
+            $users->update($request_date);
 
-
-         $request_date = $request->except(['password']);
-        if($request->has('password')){
-            $request_date['password'] = bcrypt($request->password);
+            return redirect()->route('users.index')->with(['success'=>'تم التعديل بنجاح']);
+        }catch (\Exception $ex){
+            return redirect()->route('users.index')->with(['error'=>'حدث خطأما']);
         }
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
-        $users->assignRole($request->input('roles_name'));
-        $users->update($request_date);
 
-        return redirect()->route('users.index')->with(['success'=>'تم التعديل بنجاح']);
     }
     public function destroy($id){
-        $users=User::findOrFail($id);
-        $users->delete();
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
-        return redirect()->route('users.index')->with(['success'=>'تم الحذف بنجاح']);
+        try {
+            $users=User::findOrFail($id);
+            $users->delete();
+            DB::table('model_has_roles')->where('model_id',$id)->delete();
+            return redirect()->route('users.index')->with(['success'=>'تم الحذف بنجاح']);
+        }catch (\Exception $ex){
+            return redirect()->route('users.index')->with(['error'=>'حدث خطأما']);
 
+        }
 
     }
 }

@@ -11,12 +11,13 @@ use App\Models\Product;
 use App\Notifications\AddInvoice;
 use App\Traits\General;
 use App\User;
+use Complex\Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\InvoicesExport;
-use function GuzzleHttp\Promise\all;
 
 class InvoicesController extends Controller
 {
@@ -37,50 +38,58 @@ class InvoicesController extends Controller
 
     public function store(InvoicesRequest $request)
     {
-         Invoices::create([
-           "invoices_num"=>$request->invoice_number,
-             "invoices_date"=>$request->invoice_Date,
-             "due_date"=>$request->due_date,
-             "category_id"=>$request->category,
-             "product"=>$request->product,
-             "discount"=>$request->discount,
-             "rate_vat"=>$request->rate_vat,
-             "value_vat"=>$request->value_vat,
-             "total"=>$request->total,
-             "note"=>$request->note,
-             "user"=>auth()->user()->name,
-             "status"=>0,
-             'amount_collection' => $request->amount_collection,
-             'amount_commission' => $request->amount_commission,
-         ]);
-         $invoices_id=Invoices::latest()->first()->id;
-         Invoices_details::create([
-             "invoices_id"=>$invoices_id,
-             "invoice_number"=>$request->invoice_number,
-             "category"=>$request->category,
-             "product"=>$request->product,
-             "status"=>0,
-             "note"=>$request->note,
-             "user"=>auth()->user()->name,
-         ]);
-         if($request ->file('pic')){
-             $invoices_id=Invoices::latest()->first()->id;
-                         $path=$this->SaveImages($request->file('pic'),'assets/images/attachments/'.$request->invoice_number);
-             Invoices_attachments::create([
-              "invoice_number"=>$request->invoice_number,
-              "file_name"=>$path,
-              "created_by"=>auth()->user()->name,
-              "invoice_id"=>$invoices_id
-             ]);
-         }
-        $user = User::first();
-        Notification::send($user, new AddInvoice($invoices_id));
-        $users=User::get();
-        $invoices=Invoices::latest()->first();
-        Notification::send($users,new \App\Notifications\AddIvoicesNotify($invoices));
+        try {
+            DB::beginTransaction();
+            Invoices::create([
+                "invoices_num"=>$request->invoice_number,
+                "invoices_date"=>$request->invoice_Date,
+                "due_date"=>$request->due_date,
+                "category_id"=>$request->category,
+                "product"=>$request->product,
+                "discount"=>$request->discount,
+                "rate_vat"=>$request->rate_vat,
+                "value_vat"=>$request->value_vat,
+                "total"=>$request->total,
+                "note"=>$request->note,
+                "user"=>auth()->user()->name,
+                "status"=>0,
+                'amount_collection' => $request->amount_collection,
+                'amount_commission' => $request->amount_commission,
+            ]);
+            $invoices_id=Invoices::latest()->first()->id;
 
-        return redirect()->route('invoices.index')->with(['success'=>"تم الأضافة بنجاح"]);
-
+            Invoices_details::create([
+                "invoices_id"=>$invoices_id,
+                "invoice_number"=>$request->invoice_number,
+                "category"=>$request->category,
+                "product"=>$request->product,
+                "status"=>0,
+                "note"=>$request->note,
+                "user"=>auth()->user()->name,
+            ]);
+            if($request ->file('pic')){
+                $invoices_id=Invoices::latest()->first()->id;
+                $path=$this->SaveImages($request->file('pic'),'assets/images/attachments/'.$request->invoice_number);
+                Invoices_attachments::create([
+                    "invoice_number"=>$request->invoice_number,
+                    "file_name"=>$path,
+                    "created_by"=>auth()->user()->name,
+                    "invoice_id"=>$invoices_id
+                ]);
+            }
+            DB::commit();
+            // send notification and email
+            $user = User::first();
+            Notification::send($user, new AddInvoice($invoices_id));
+            $users=User::get();
+            $invoices=Invoices::latest()->first();
+            Notification::send($users,new \App\Notifications\AddIvoicesNotify($invoices));
+            //end
+            return redirect()->route('invoices.index')->with(['success'=>"تم الأضافة بنجاح"]);
+        }catch (\Exception $ex){
+            DB::rollback();
+            return redirect()->route('invoices.index')->with(['error' => 'حصل حطأ ما في الحفظ']);
+        }
 
     }
 
@@ -104,68 +113,92 @@ class InvoicesController extends Controller
 
     }
    public function statusShow($id){
-        $invoices=Invoices::findOrFail($id);
-        if(!$invoices){
-            return redirect()->route('invoices.index')->with(['error' => 'Sorry This item Not Found']);
-        }
-        return view('invoices.invoices_status',compact('invoices'));
+       try {
+           $invoices=Invoices::findOrFail($id);
+           if(!$invoices){
+               return redirect()->route('invoices.index')->with(['error' => 'Sorry This item Not Found']);
+           }
+           return view('invoices.invoices_status',compact('invoices'));
+       }catch (\Exception $ex){
+           return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
+       }
+
    }
    public function statusUpdate(Request $request,$id){
-        $invoices=Invoices::findOrFail($id);
-        if($request->status==1){
-            $invoices->update([
-               'status'=>$request->status,
-                'Payment_Date'=>$request->Payment_Date
-            ]);
-            Invoices_details::create([
-                "invoices_id"=>$request->invoices_id,
-                "invoice_number"=>$request->invoice_number,
-                "category"=>$request->category,
-                "product"=>$request->product,
-                "status"=>$request->status,
-                "note"=>$request->note,
-                "Payment_Date"=>$request->Payment_Date,
-                "user"=>auth()->user()->name,
-            ]);
-        }
-        else{
-            $invoices->update([
-                'status'=>$request->status,
-                'Payment_Date'=>$request->Payment_Date
-            ]);
-            Invoices_details::create([
-                "invoices_id"=>$request->invoices_id,
-                "invoice_number"=>$request->invoice_number,
-                "Payment_Date"=>$request->Payment_Date,
-                "category"=>$request->category,
-                "product"=>$request->product,
-                "status"=>$request->status,
-                "note"=>$request->note,
-                "user"=>auth()->user()->name,
-            ]);
-        }
-       return redirect()->route('invoices.index')->with(['success'=>" تم تغير الحالة بنجاح "]);
+       try {
+           $invoices=Invoices::findOrFail($id);
+           if($request->status==1){
+               DB::beginTransaction();
 
+               $invoices->update([
+                   'status'=>$request->status,
+                   'Payment_Date'=>$request->Payment_Date
+               ]);
+               Invoices_details::create([
+                   "invoices_id"=>$request->invoices_id,
+                   "invoice_number"=>$request->invoice_number,
+                   "category"=>$request->category,
+                   "product"=>$request->product,
+                   "status"=>$request->status,
+                   "note"=>$request->note,
+                   "Payment_Date"=>$request->Payment_Date,
+                   "user"=>auth()->user()->name,
+               ]);
+           }
+           else{
+               DB::beginTransaction();
+
+               $invoices->update([
+                   'status'=>$request->status,
+                   'Payment_Date'=>$request->Payment_Date
+               ]);
+               Invoices_details::create([
+                   "invoices_id"=>$request->invoices_id,
+                   "invoice_number"=>$request->invoice_number,
+                   "Payment_Date"=>$request->Payment_Date,
+                   "category"=>$request->category,
+                   "product"=>$request->product,
+                   "status"=>$request->status,
+                   "note"=>$request->note,
+                   "user"=>auth()->user()->name,
+               ]);
+           }
+           DB::commit();
+
+           return redirect()->route('invoices.index')->with(['success'=>" تم تغير الحالة بنجاح "]);
+       }catch (\Exception $ex){
+           DB::rollBack();
+           return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
+
+       }
 
    }
 
     public function edit($id)
     {
-        $invoices=Invoices::findOrFail($id);
-        if(!$invoices){
-            return redirect()->route('invoices.index')->with(['error' => 'Sorry This item Not Found']);
+        try {
+            $invoices=Invoices::findOrFail($id);
+            if(!$invoices){
+                return redirect()->route('invoices.index')->with(['error' => 'Sorry This item Not Found']);
+            }
+            $categories=Category::all();
+            return view('invoices.edit_invoices',compact('invoices','categories'));
+
+        }catch (\Exception $ex){
+            return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
+
         }
-        $categories=Category::all();
-        return view('invoices.edit_invoices',compact('invoices','categories'));
+
     }
 
 
     public function update(InvoicesRequest $request,$id)
     {
-        $invoices=Invoices::findOrFail($id);
-        if(!$invoices){
-            return redirect()->route('invoices.index')->with(['error' => 'Sorry This item Not Found']);
-        }
+        try {
+            $invoices=Invoices::findOrFail($id);
+            if(!$invoices){
+                return redirect()->route('invoices.index')->with(['error' => 'Sorry This item Not Found']);
+            }
 
             $user = $invoices->update([
                 "invoices_num"=>$request->invoice_number,
@@ -182,55 +215,67 @@ class InvoicesController extends Controller
                 'amount_collection' => $request->amount_collection,
                 'amount_commission' => $request->amount_commission,
             ]);
-        return redirect()->route('invoices.index')->with(['success'=>"تم التعديل بنجاح"]);
+            return redirect()->route('invoices.index')->with(['success'=>"تم التعديل بنجاح"]);
+        }catch (\Exception $ex){
+            return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
 
-
+        }
     }
 
 
     public function destroy(Request $request)
     {
-       $id= $request->invoice_id;
-       $invoices=Invoices::findOrFail($id);
-       if(!$invoices){
-           return redirect()->route('invoices.index')->with(['error'=>"حصل خطأ ما "]);
-       }
-        $Details=Invoices_attachments::where('invoice_id',$id)->first();
-       if(!$request->page_id==2){
-           if(!empty($Details)){
-               Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
-           }
-           $invoices->forceDelete();
-           return redirect()->route('invoices.index')->with(['success'=>" تم الحذف بنجاح "]);
-       }else{
-           $invoices->delete();
-           return redirect()->route('archive.index')->with(['success'=>"تم الارشفة بنحاخ "]);
-       }
+        try {
+            $id= $request->invoice_id;
+            $invoices=Invoices::findOrFail($id);
+            if(!$invoices){
+                return redirect()->route('invoices.index')->with(['error'=>"حصل خطأ ما "]);
+            }
+            $Details=Invoices_attachments::where('invoice_id',$id)->first();
+            if(!$request->page_id==2){
+                if(!empty($Details)){
+                    Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
+                }
+                $invoices->forceDelete();
+                return redirect()->route('invoices.index')->with(['success'=>" تم الحذف بنجاح "]);
+            }else{
+                $invoices->delete();
+                return redirect()->route('archive.index')->with(['success'=>"تم الارشفة بنحاخ "]);
+            }
+        }catch (\Exception $ex){
+            return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
+
+        }
+
     }
     public function deleteAllChecked(Request $request){
 
-        $delete_all=explode(',',$request->delete_all_id);
+        try {
+            $delete_all=explode(',',$request->delete_all_id);
 
-        $Details=Invoices_attachments::WhereIn('invoice_id',$delete_all)->first();
-        if(!$request->page_id==2) {
-            if (!empty($Details)) {
-                Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
+            $Details=Invoices_attachments::WhereIn('invoice_id',$delete_all)->first();
+            if(!$request->page_id==2) {
+                if (!empty($Details)) {
+                    Storage::disk('attachments')->deleteDirectory($Details->invoice_number);
+                }
+                $invoices=Invoices::WhereIn('id',$delete_all)->forceDelete();
+                return redirect()->route('invoices.index')->with(['success'=>" تم الحذف بنجاح "]);
+
+            }else{
+                $invoices=Invoices::WhereIn('id',$delete_all)->Delete();
+                return redirect()->route('archive.index')->with(['success'=>" تم الحذف بنجاح ونقلة للاشرفة  "]);
             }
-            $invoices=Invoices::WhereIn('id',$delete_all)->forceDelete();
-            return redirect()->route('invoices.index')->with(['success'=>" تم الحذف بنجاح "]);
 
-        }else{
-            $invoices=Invoices::WhereIn('id',$delete_all)->Delete();
-            return redirect()->route('archive.index')->with(['success'=>" تم الحذف بنجاح ونقلة للاشرفة  "]);
+        }catch (\Exception $ex){
+            return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
+
         }
-
-
-
     }
     public function getProduct($id){
        $products=Product::where('category_id',$id)->pluck('product_name',"id");
         return json_encode($products);
-    }
+    } // ajax function
+
     public function getInvoicePaid(){
         $invoices=Invoices::where('status',1)->get();
         return view('invoices.invoice_paid',compact('invoices'));

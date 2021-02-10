@@ -212,7 +212,7 @@
                 var CategoryId = $(this).val();
                 if (CategoryId) {
                     $.ajax({
-                        url: "{{ URL::to('category') }}/" + CategoryId,
+                        url: "{{ URL::to('Invoices/category') }}/" + CategoryId,
                         type: "GET",
                         dataType: "json",
                         success: function(data) {

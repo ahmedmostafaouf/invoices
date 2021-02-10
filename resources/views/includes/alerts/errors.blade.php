@@ -4,7 +4,7 @@
         window.onload = function() {
             notif({
                 msg: "{{session()->get('error')}}",
-                type: "danger"
+                type: "error"
             })
         }
     </script>

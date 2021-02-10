@@ -15,16 +15,6 @@ class InvoicesDetailsController extends Controller
 {
     use General;
 
-    public function index()
-    {
-        //
-    }
-
-
-    public function create()
-    {
-        //
-    }
 
    public function openFile($invoice_number,$file_name){
         $files=Storage::disk('attachments')->getDriver()->getAdapter()->applyPathPrefix($invoice_number.'/'.$file_name);
@@ -34,13 +24,6 @@ class InvoicesDetailsController extends Controller
         $files=Storage::disk('attachments')->getDriver()->getAdapter()->applyPathPrefix($invoice_number.'/'.$file_name);
         return response()->download($files);
     }
-
-    public function store(Request $request)
-    {
-        //
-    }
-
-
     public function show($id)
     {
         try {
@@ -59,37 +42,30 @@ class InvoicesDetailsController extends Controller
                 }
             }
 
-
             return view('invoices.invoices_details',compact('invoices','invoices_details','attachments'));
         }catch (\Exception $ex){
-            return $ex;
             return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
         }
     }
 
 
-    public function edit(Invoices_details $invoices_details)
-    {
-        //
-    }
-
-
-    public function update(Request $request, Invoices_details $invoices_details)
-    {
-        //
-    }
-
-
     public function destroy(Request $request)
+
     {
-        $id =$request->file_id;
-        $attachments=Invoices_attachments::findOrFail($id);
-        if(!$attachments){
+        try {
+            $id =$request->file_id;
+            $attachments=Invoices_attachments::findOrFail($id);
+            if(!$attachments){
+                return redirect()->route('invoices.index')->with(['error' => 'المرفق غير موجود']);
+            }
+            $attachments->delete();
+            Storage::disk('attachments')->delete($request->invoice_number.'/'.$request->file_name);
+            return redirect()->route('invoices.index')->with(['success' => 'تم حذف الملف بنجاح']);
+        }catch (\Exception $ex){
             return redirect()->route('invoices.index')->with(['error' => 'المرفق غير موجود']);
+
         }
-        $attachments->delete();
-        Storage::disk('attachments')->delete($request->invoice_number.'/'.$request->file_name);
-        return redirect()->route('invoices.index')->with(['success' => 'تم حذف الملف بنجاح']);
+
     }
 
 }

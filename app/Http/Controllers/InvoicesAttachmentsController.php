@@ -11,10 +11,6 @@ class InvoicesAttachmentsController extends Controller
 {
     use General;
 
-
-
-
-
     public function store(InvoicesAttachmentsRequest $request)
     {
 
