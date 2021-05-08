@@ -41,8 +41,9 @@ class InvoicesDetailsController extends Controller
                     $noty->markAsRead();
                 }
             }
-
             return view('invoices.invoices_details',compact('invoices','invoices_details','attachments'));
+
+
         }catch (\Exception $ex){
             return redirect()->route('invoices.index')->with(['error' => 'Sorry Something went wrong']);
         }
